@@ -1,12 +1,58 @@
 const STORAGE_KEY = "datalogger_data";
+const FIELDS_KEY = "datalogger_fields";
+
+let fields = JSON.parse(localStorage.getItem(FIELDS_KEY) || "[]");
 
 document.addEventListener("DOMContentLoaded", () => {
+  renderFields();
   loadData();
-  document.getElementById("addBtn").addEventListener("click", addManualData);
+
+  document.getElementById("addFieldBtn").addEventListener("click", addField);
+  document.getElementById("dataForm").addEventListener("submit", saveFormData);
   document.getElementById("exportBtn").addEventListener("click", exportCsv);
   document.getElementById("clearBtn").addEventListener("click", clearData);
+
   startQrScanner();
 });
+
+function addField() {
+  const input = document.getElementById("newFieldName");
+  const name = input.value.trim();
+  if (name && !fields.includes(name)) {
+    fields.push(name);
+    localStorage.setItem(FIELDS_KEY, JSON.stringify(fields));
+    renderFields();
+    input.value = "";
+  }
+}
+
+function renderFields() {
+  const container = document.getElementById("formFields");
+  container.innerHTML = "";
+  fields.forEach(field => {
+    const label = document.createElement("label");
+    label.textContent = field + ": ";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.name = field;
+    container.appendChild(label);
+    container.appendChild(input);
+    container.appendChild(document.createElement("br"));
+  });
+  renderTableHeader();
+}
+
+function saveFormData(event) {
+  event.preventDefault();
+  const formData = {};
+  fields.forEach(f => {
+    formData[f] = document.querySelector(`[name="${f}"]`).value.trim();
+  });
+  const arr = getData();
+  arr.push({ ts: Date.now(), type: "FORM", values: formData });
+  saveData(arr);
+  event.target.reset();
+}
 
 function getData() {
   return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -17,25 +63,29 @@ function saveData(arr) {
   renderList(arr);
 }
 
-function addManualData() {
-  const input = document.getElementById("manualInput");
-  const value = input.value.trim();
-  if (value) {
-    const arr = getData();
-    arr.push({ ts: Date.now(), type: "MANUAL", value });
-    saveData(arr);
-    input.value = "";
-  }
+function renderTableHeader() {
+  const header = document.getElementById("tableHeader");
+  header.innerHTML = "<th>#</th><th>Dátum</th><th>Típus</th>";
+  fields.forEach(f => {
+    const th = document.createElement("th");
+    th.textContent = f;
+    header.appendChild(th);
+  });
 }
 
 function renderList(arr) {
-  const list = document.getElementById("dataList");
-  list.innerHTML = "";
+  const body = document.getElementById("tableBody");
+  body.innerHTML = "";
   arr.forEach((item, idx) => {
-    const li = document.createElement("li");
+    const tr = document.createElement("tr");
     const date = new Date(item.ts).toLocaleString();
-    li.textContent = `${idx+1}. [${item.type}] ${item.value} (${date})`;
-    list.appendChild(li);
+    tr.innerHTML = `<td>${idx+1}</td><td>${date}</td><td>${item.type}</td>`;
+    fields.forEach(f => {
+      const td = document.createElement("td");
+      td.textContent = item.values?.[f] || "";
+      tr.appendChild(td);
+    });
+    body.appendChild(tr);
   });
 }
 
@@ -50,9 +100,11 @@ function clearData() {
 function exportCsv() {
   const arr = getData();
   if (arr.length === 0) return alert("Nincs exportálható adat");
-  let csv = "id,timestamp,type,value\n";
+  let csv = "id,timestamp,type," + fields.join(",") + "\n";
   arr.forEach((item, i) => {
-    csv += `${i+1},${item.ts},${item.type},"${item.value}"\n`;
+    const row = [i+1, item.ts, item.type];
+    fields.forEach(f => row.push(`"${item.values?.[f] || ""}"`));
+    csv += row.join(",") + "\n";
   });
   const blob = new Blob([csv], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
@@ -73,7 +125,11 @@ function startQrScanner() {
     config,
     qrCodeMessage => {
       const arr = getData();
-      arr.push({ ts: Date.now(), type: "QR", value: qrCodeMessage });
+      arr.push({
+        ts: Date.now(),
+        type: "QR",
+        values: { QR: qrCodeMessage }
+      });
       saveData(arr);
     },
     errorMessage => {
