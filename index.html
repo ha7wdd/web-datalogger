@@ -12,6 +12,19 @@
 <body>
   <h1>Web Data Logger</h1>
 
+  <div class="fields-config">
+  <h2>Mezők konfigurálása</h2>
+  <input type="text" id="newFieldName" placeholder="Új mező neve">
+  <button id="addFieldBtn">Mező hozzáadása</button>
+</div>
+
+<form id="dataForm">
+  <div id="formFields">
+    <!-- ide generálódnak a mezők -->
+  </div>
+  <button type="submit">Mentés</button>
+</form>
+
   <div class="form-section">
     <h2>Adatbevitel (billentyűzet)</h2>
     <input type="text" id="manualInput" placeholder="Írd be az adatot">
