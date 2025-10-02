@@ -3,33 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stahl Beállítások</title>
+  <title>Web Data Logger</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4CAF50">
 </head>
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <body>
-  <h1>Stahl beállítások</h1>
+  <h1>Web Data Logger</h1>
 
   <div class="fields-config">
-  <h2>Mezők konfigurálása</h2>
-  <input type="text" id="newFieldName" placeholder="Új mező neve">
-  <button id="addFieldBtn">Mező hozzáadása</button>
-</div>
-
-<form id="dataForm">
-  <div id="formFields">
-    <!-- ide generálódnak a mezők -->
+    <h2>Mezők konfigurálása</h2>
+    <input type="text" id="newFieldName" placeholder="Új mező neve">
+    <button id="addFieldBtn">Mező hozzáadása</button>
   </div>
-  <button type="submit">Mentés</button>
-</form>
 
-  <div class="form-section">
-    <h2>Adatbevitel (billentyűzet)</h2>
-    <input type="text" id="manualInput" placeholder="Írd be az adatot">
-    <button id="addBtn">Hozzáadás</button>
-  </div>
+  <form id="dataForm">
+    <div id="formFields"></div>
+    <button type="submit">Mentés</button>
+  </form>
 
   <div class="qr-section">
     <h2>QR szkenner</h2>
@@ -38,12 +29,16 @@
 
   <div class="data-section">
     <h2>Rögzített adatok</h2>
-    <ul id="dataList"></ul>
+    <table id="dataTable" border="1" cellpadding="5">
+      <thead><tr id="tableHeader"></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
     <button id="exportBtn">Export CSV</button>
     <button id="clearBtn">Törlés</button>
   </div>
 
-  <script src="libs/html5-qrcode.min.js"></script>
+  <!-- QR könyvtár CDN-ről -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="app.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
