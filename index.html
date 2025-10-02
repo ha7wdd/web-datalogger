@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Data Logger</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4CAF50">
+</head>
+<body>
+  <h1>Web Data Logger</h1>
+
+  <div class="form-section">
+    <h2>Adatbevitel (billentyűzet)</h2>
+    <input type="text" id="manualInput" placeholder="Írd be az adatot">
+    <button id="addBtn">Hozzáadás</button>
+  </div>
+
+  <div class="qr-section">
+    <h2>QR szkenner</h2>
+    <div id="qr-reader" style="width:300px"></div>
+  </div>
+
+  <div class="data-section">
+    <h2>Rögzített adatok</h2>
+    <ul id="dataList"></ul>
+    <button id="exportBtn">Export CSV</button>
+    <button id="clearBtn">Törlés</button>
+  </div>
+
+  <script src="libs/html5-qrcode.min.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js")
+        .then(() => console.log("Service Worker regisztrálva"))
+        .catch(err => console.error("SW hiba", err));
+    }
+  </script>
+</body>
+</html>
